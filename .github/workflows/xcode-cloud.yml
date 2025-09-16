@@ -1,0 +1,80 @@
+# GitHub Actions iOS Build - Direct Device Installation
+# Builds iOS app without App Store Connect requirement
+
+name: Build iOS App
+
+# Trigger build on push to main branch
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    
+    steps:
+    # Checkout repository code
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    # Set up Flutter
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.13.0'
+        channel: 'stable'
+        
+    # Install Flutter dependencies
+    - name: Install Flutter Dependencies
+      run: flutter pub get
+      
+    # Install iOS CocoaPods dependencies
+    - name: Install iOS Dependencies
+      run: |
+        cd ios
+        pod install
+        cd ..
+        
+    # Import certificates for signing (we'll create self-signed)
+    - name: Import Code-Signing Certificates
+      run: |
+        # Create a keychain
+        security create-keychain -p "" build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p "" build.keychain
+        security set-keychain-settings -t 3600 -u build.keychain
+        
+        # Create self-signed certificate for development
+        security create-certificate-request -c "CN=Flutter Development" -k build.keychain
+        
+    # Build iOS app
+    - name: Build iOS App
+      run: |
+        flutter build ios --release --no-codesign
+        
+    # Create IPA file
+    - name: Create IPA File
+      run: |
+        cd build/ios/iphoneos
+        mkdir -p Payload
+        cp -r Runner.app Payload/
+        zip -r ProcreateHelperWidget.ipa Payload/
+        
+    # Upload IPA as artifact
+    - name: Upload IPA File
+      uses: actions/upload-artifact@v4
+      with:
+        name: ProcreateHelperWidget-iOS
+        path: build/ios/iphoneos/ProcreateHelperWidget.ipa
+        retention-days: 30
+        
+    # Upload Runner.app for direct installation
+    - name: Upload App Bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: ProcreateHelperWidget-App
+        path: build/ios/iphoneos/Runner.app
+        retention-days: 30
