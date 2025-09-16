@@ -38,7 +38,7 @@ target 'Runner' do
 end
 
 # Widget Extension Target
-target 'ProcreateHelperWidget' do
+target 'ProcreateHelperWidgetExtension' do
   use_frameworks!
   use_modular_headers!
 end
