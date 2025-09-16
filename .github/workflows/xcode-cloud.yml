@@ -24,31 +24,25 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.13.0'
+        flutter-version: '3.19.6'
         channel: 'stable'
         
-    # Install Flutter dependencies
+    # Install Flutter dependencies first
     - name: Install Flutter Dependencies
       run: flutter pub get
       
+    # Clean and regenerate Flutter iOS configuration
+    - name: Clean and Regenerate Flutter iOS Config
+      run: |
+        flutter clean
+        flutter pub get
+        
     # Install iOS CocoaPods dependencies
     - name: Install iOS Dependencies
       run: |
         cd ios
-        pod install
+        pod install --verbose
         cd ..
-        
-    # Import certificates for signing (we'll create self-signed)
-    - name: Import Code-Signing Certificates
-      run: |
-        # Create a keychain
-        security create-keychain -p "" build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p "" build.keychain
-        security set-keychain-settings -t 3600 -u build.keychain
-        
-        # Create self-signed certificate for development
-        security create-certificate-request -c "CN=Flutter Development" -k build.keychain
         
     # Build iOS app
     - name: Build iOS App
