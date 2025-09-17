@@ -15,7 +15,6 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		4A90C9D32C8A4F7E003AAA21 /* ProcreateHelperWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A90C9D22C8A4F7E003AAA21 /* ProcreateHelperWidget.swift */; };
 		4A90C9D52C8A4F80003AAA21 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4A90C9D42C8A4F80003AAA21 /* Assets.xcassets */; };
-		4A90C9D72C8A4F80003AAA21 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4A90C9D62C8A4F80003AAA21 /* Info.plist */; };
 		4A90C9DB2C8A4F80003AAA21 /* ProcreateHelperWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 4A90C9D02C8A4F7E003AAA21 /* ProcreateHelperWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -233,7 +232,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A90C9D52C8A4F80003AAA21 /* Assets.xcassets in Resources */,
-				4A90C9D72C8A4F80003AAA21 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

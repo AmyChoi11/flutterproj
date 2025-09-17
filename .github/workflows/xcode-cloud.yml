@@ -42,12 +42,11 @@ jobs:
       run: |
         cd ios
         
-        # The error occurs because Info.plist is in both:
-        # 1. Copy Bundle Resources build phase (wrong)
-        # 2. Process Info.plist build phase (correct)
-        # We need to remove it from Copy Bundle Resources
+        # Fix the exact error: Multiple commands produce Info.plist
+        # The widget's Info.plist should NOT be in Copy Bundle Resources phase
+        # It should only be referenced in INFOPLIST_FILE build setting
         
-        # Create a Python script to fix the project file
+        # Create a targeted fix script
         cat > fix_project.py << 'PYTHON_SCRIPT'
         import re
         
@@ -55,29 +54,24 @@ jobs:
         with open('Runner.xcodeproj/project.pbxproj', 'r') as f:
             content = f.read()
         
-        # Count occurrences before fix
-        before_count = content.count('ProcreateHelperWidget/Info.plist')
-        print(f"Found {before_count} references to ProcreateHelperWidget/Info.plist")
+        print("Fixing duplicate Info.plist issue...")
         
-        # Remove lines that contain ProcreateHelperWidget/Info.plist from Copy Bundle Resources
-        lines = content.split('\n')
-        new_lines = []
-        removed_lines = 0
+        # Remove the PBXBuildFile entry for widget Info.plist
+        # Pattern: 4A90C9D72C8A4F80003AAA21 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4A90C9D62C8A4F80003AAA21 /* Info.plist */; };
+        pattern1 = r'\s*4A90C9D72C8A4F80003AAA21 /\* Info\.plist in Resources \*/ = \{isa = PBXBuildFile; fileRef = 4A90C9D62C8A4F80003AAA21 /\* Info\.plist \*/; \};\n'
+        content = re.sub(pattern1, '', content)
         
-        for line in lines:
-            # Skip lines that are file references to the widget Info.plist in Copy Bundle Resources
-            if 'ProcreateHelperWidget/Info.plist' in line and ('PBXBuildFile' in line or 'fileRef' in line):
-                print(f"Removing: {line.strip()}")
-                removed_lines += 1
-                continue
-            new_lines.append(line)
+        # Remove the reference from Resources build phase
+        # Pattern: 4A90C9D72C8A4F80003AAA21 /* Info.plist in Resources */,
+        pattern2 = r'\s*4A90C9D72C8A4F80003AAA21 /\* Info\.plist in Resources \*/,\n'
+        content = re.sub(pattern2, '', content)
         
         # Write back the fixed content
         with open('Runner.xcodeproj/project.pbxproj', 'w') as f:
-            f.write('\n'.join(new_lines))
+            f.write(content)
         
-        print(f"Removed {removed_lines} problematic references")
-        print("Xcode project configuration fixed")
+        print("Fixed Xcode project configuration")
+        print("Removed duplicate Info.plist references from Copy Bundle Resources")
         PYTHON_SCRIPT
         
         # Run the fix script
