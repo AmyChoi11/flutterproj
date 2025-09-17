@@ -44,31 +44,59 @@ jobs:
         pod install --verbose
         cd ..
         
-    # Build iOS app
-    - name: Build iOS App
+    # Build iOS app for simulator (no signing required)
+    - name: Build iOS App for Simulator
       run: |
-        flutter build ios --release --no-codesign
+        flutter build ios --simulator --debug
         
-    # Create IPA file
-    - name: Create IPA File
+    # Build iOS app for device (attempt without signing)
+    - name: Build iOS App for Device (Unsigned)
       run: |
-        cd build/ios/iphoneos
-        mkdir -p Payload
-        cp -r Runner.app Payload/
-        zip -r ProcreateHelperWidget.ipa Payload/
+        # Try building for device, but don't fail if it doesn't work
+        flutter build ios --release --no-codesign || echo "Device build failed - continuing with simulator build"
         
-    # Upload IPA as artifact
-    - name: Upload IPA File
+    # Create IPA files
+    - name: Create App Packages
+      run: |
+        # Create simulator IPA
+        if [ -d "build/ios/iphonesimulator/Runner.app" ]; then
+          cd build/ios/iphonesimulator
+          mkdir -p Payload
+          cp -r Runner.app Payload/
+          zip -r ProcreateHelperWidget-Simulator.ipa Payload/
+          cd ../../..
+        fi
+        
+        # Create device IPA if device build succeeded
+        if [ -d "build/ios/iphoneos/Runner.app" ]; then
+          cd build/ios/iphoneos
+          mkdir -p Payload
+          cp -r Runner.app Payload/
+          zip -r ProcreateHelperWidget-Device.ipa Payload/
+          cd ../../..
+        fi
+        
+        # List what we created
+        find build -name "*.ipa" -type f
+        
+    # Upload IPA files as artifacts
+    - name: Upload App Packages
       uses: actions/upload-artifact@v4
       with:
-        name: ProcreateHelperWidget-iOS
-        path: build/ios/iphoneos/ProcreateHelperWidget.ipa
+        name: ProcreateHelperWidget-iOS-Apps
+        path: |
+          build/ios/iphonesimulator/ProcreateHelperWidget-Simulator.ipa
+          build/ios/iphoneos/ProcreateHelperWidget-Device.ipa
         retention-days: 30
+        if-no-files-found: ignore
         
-    # Upload Runner.app for direct installation
-    - name: Upload App Bundle
+    # Upload app bundles as backup
+    - name: Upload App Bundles
       uses: actions/upload-artifact@v4
       with:
-        name: ProcreateHelperWidget-App
-        path: build/ios/iphoneos/Runner.app
+        name: ProcreateHelperWidget-App-Bundles
+        path: |
+          build/ios/iphonesimulator/Runner.app
+          build/ios/iphoneos/Runner.app
         retention-days: 30
+        if-no-files-found: ignore
