@@ -78,6 +78,94 @@ jobs:
         python3 fix_project.py
         cd ..
         
+    # Create missing asset files for widget
+    - name: Create Missing Asset Files
+      run: |
+        cd ios
+        
+        # Create widget Assets.xcassets directory structure
+        mkdir -p ProcreateHelperWidget/Assets.xcassets/AccentColor.colorset
+        mkdir -p ProcreateHelperWidget/Assets.xcassets/WidgetBackground.colorset
+        
+        # Create Assets.xcassets Contents.json
+        cat > ProcreateHelperWidget/Assets.xcassets/Contents.json << 'EOF'
+        {
+          "info" : {
+            "author" : "xcode",
+            "version" : 1
+          }
+        }
+        EOF
+        
+        # Create AccentColor
+        cat > ProcreateHelperWidget/Assets.xcassets/AccentColor.colorset/Contents.json << 'EOF'
+        {
+          "colors" : [
+            {
+              "idiom" : "universal",
+              "color" : {
+                "color-space" : "srgb",
+                "components" : {
+                  "red" : 0.000,
+                  "green" : 0.478,
+                  "blue" : 1.000,
+                  "alpha" : 1.000
+                }
+              }
+            }
+          ],
+          "info" : {
+            "author" : "xcode",
+            "version" : 1
+          }
+        }
+        EOF
+        
+        # Create WidgetBackground
+        cat > ProcreateHelperWidget/Assets.xcassets/WidgetBackground.colorset/Contents.json << 'EOF'
+        {
+          "colors" : [
+            {
+              "idiom" : "universal",
+              "color" : {
+                "color-space" : "srgb",
+                "components" : {
+                  "red" : 1.000,
+                  "green" : 1.000,
+                  "blue" : 1.000,
+                  "alpha" : 1.000
+                }
+              }
+            },
+            {
+              "appearances" : [
+                {
+                  "appearance" : "luminosity",
+                  "value" : "dark"
+                }
+              ],
+              "idiom" : "universal",
+              "color" : {
+                "color-space" : "srgb",
+                "components" : {
+                  "red" : 0.110,
+                  "green" : 0.110,
+                  "blue" : 0.118,
+                  "alpha" : 1.000
+                }
+              }
+            }
+          ],
+          "info" : {
+            "author" : "xcode",
+            "version" : 1
+          }
+        }
+        EOF
+        
+        echo "Created widget Assets.xcassets with AccentColor and WidgetBackground"
+        cd ..
+        
     # Install iOS CocoaPods dependencies
     - name: Install iOS Dependencies
       run: |
