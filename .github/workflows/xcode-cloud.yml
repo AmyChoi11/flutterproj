@@ -47,40 +47,40 @@ jobs:
         # 2. Process Info.plist build phase (correct)
         # We need to remove it from Copy Bundle Resources
         
-        # Create a simple fix script
-        cat > fix_project.py << 'EOF'
-import re
-
-# Read the project file
-with open('Runner.xcodeproj/project.pbxproj', 'r') as f:
-    content = f.read()
-
-# Count occurrences before fix
-before_count = content.count('ProcreateHelperWidget/Info.plist')
-print(f"Found {before_count} references to ProcreateHelperWidget/Info.plist")
-
-# Remove the line that contains ProcreateHelperWidget/Info.plist from Copy Bundle Resources
-# This is typically a line like: 1234567890ABCDEF /* Info.plist */ = {isa = PBXFileReference; ...
-lines = content.split('\n')
-new_lines = []
-removed_lines = 0
-
-for line in lines:
-    # Skip lines that are file references to the widget Info.plist in Copy Bundle Resources
-    if 'ProcreateHelperWidget/Info.plist' in line and ('PBXBuildFile' in line or 'Copy Bundle Resources' in content[max(0, content.find(line)-200):content.find(line)+200]):
-        print(f"Removing: {line.strip()}")
-        removed_lines += 1
-        continue
-    new_lines.append(line)
-
-# Write back the fixed content
-with open('Runner.xcodeproj/project.pbxproj', 'w') as f:
-    f.write('\n'.join(new_lines))
-
-print(f"Removed {removed_lines} problematic references")
-print("Xcode project configuration fixed")
-EOF
-
+        # Create a Python script to fix the project file
+        cat > fix_project.py << 'PYTHON_SCRIPT'
+        import re
+        
+        # Read the project file
+        with open('Runner.xcodeproj/project.pbxproj', 'r') as f:
+            content = f.read()
+        
+        # Count occurrences before fix
+        before_count = content.count('ProcreateHelperWidget/Info.plist')
+        print(f"Found {before_count} references to ProcreateHelperWidget/Info.plist")
+        
+        # Remove lines that contain ProcreateHelperWidget/Info.plist from Copy Bundle Resources
+        lines = content.split('\n')
+        new_lines = []
+        removed_lines = 0
+        
+        for line in lines:
+            # Skip lines that are file references to the widget Info.plist in Copy Bundle Resources
+            if 'ProcreateHelperWidget/Info.plist' in line and ('PBXBuildFile' in line or 'fileRef' in line):
+                print(f"Removing: {line.strip()}")
+                removed_lines += 1
+                continue
+            new_lines.append(line)
+        
+        # Write back the fixed content
+        with open('Runner.xcodeproj/project.pbxproj', 'w') as f:
+            f.write('\n'.join(new_lines))
+        
+        print(f"Removed {removed_lines} problematic references")
+        print("Xcode project configuration fixed")
+        PYTHON_SCRIPT
+        
+        # Run the fix script
         python3 fix_project.py
         cd ..
         
