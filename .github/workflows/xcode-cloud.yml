@@ -166,6 +166,125 @@ jobs:
         echo "Created widget Assets.xcassets with AccentColor and WidgetBackground"
         cd ..
         
+    # Create missing Runner app files
+    - name: Create Missing Runner App Files
+      run: |
+        cd ios
+        
+        # Create Runner Assets.xcassets directory structure
+        mkdir -p Runner/Assets.xcassets/LaunchImage.imageset
+        mkdir -p Runner/Base.lproj
+        
+        # Create Runner Assets.xcassets Contents.json
+        cat > Runner/Assets.xcassets/Contents.json << 'EOF'
+        {
+          "info" : {
+            "author" : "xcode",
+            "version" : 1
+          }
+        }
+        EOF
+        
+        # Create LaunchImage imageset
+        cat > Runner/Assets.xcassets/LaunchImage.imageset/Contents.json << 'EOF'
+        {
+          "images" : [
+            {
+              "idiom" : "universal",
+              "filename" : "LaunchImage.png",
+              "scale" : "1x"
+            },
+            {
+              "idiom" : "universal", 
+              "scale" : "2x"
+            },
+            {
+              "idiom" : "universal",
+              "scale" : "3x"
+            }
+          ],
+          "info" : {
+            "author" : "xcode",
+            "version" : 1
+          }
+        }
+        EOF
+        
+        # Create Main.storyboard
+        cat > Runner/Base.lproj/Main.storyboard << 'EOF'
+        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+        <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22154" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+            <device id="retina6_12" orientation="portrait" appearance="light"/>
+            <dependencies>
+                <deployment identifier="iOS"/>
+                <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22130"/>
+                <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+                <capability name="System colors in document" minToolsVersion="11.0"/>
+                <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+            </dependencies>
+            <scenes>
+                <scene sceneID="tne-QT-ifu">
+                    <objects>
+                        <viewController id="BYZ-38-t0r" customClass="FlutterViewController" sceneMemberID="viewController">
+                            <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                        </viewController>
+                        <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                    </objects>
+                    <point key="canvasLocation" x="20" y="84"/>
+                </scene>
+            </scenes>
+            <resources>
+                <systemColor name="systemBackgroundColor">
+                    <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </systemColor>
+            </resources>
+        </document>
+        EOF
+        
+        # Create LaunchScreen.storyboard
+        cat > Runner/Base.lproj/LaunchScreen.storyboard << 'EOF'
+        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+        <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22154" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+            <device id="retina6_12" orientation="portrait" appearance="light"/>
+            <dependencies>
+                <deployment identifier="iOS"/>
+                <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22130"/>
+                <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+                <capability name="System colors in document" minToolsVersion="11.0"/>
+                <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+            </dependencies>
+            <scenes>
+                <scene sceneID="EHf-IW-A2E">
+                    <objects>
+                        <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                            <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
+                        </viewController>
+                        <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                    </objects>
+                    <point key="canvasLocation" x="53" y="375"/>
+                </scene>
+            </scenes>
+            <resources>
+                <systemColor name="systemBackgroundColor">
+                    <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </systemColor>
+            </resources>
+        </document>
+        EOF
+        
+        echo "Created Runner app Assets.xcassets and storyboard files"
+        cd ..
+        
     # Install iOS CocoaPods dependencies
     - name: Install iOS Dependencies
       run: |
