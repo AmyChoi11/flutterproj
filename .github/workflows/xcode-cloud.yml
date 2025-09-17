@@ -37,6 +37,53 @@ jobs:
         flutter clean
         flutter pub get
         
+    # Fix Xcode project configuration issues
+    - name: Fix Widget Extension Build Configuration
+      run: |
+        cd ios
+        
+        # The error occurs because Info.plist is in both:
+        # 1. Copy Bundle Resources build phase (wrong)
+        # 2. Process Info.plist build phase (correct)
+        # We need to remove it from Copy Bundle Resources
+        
+        # Create a simple fix script
+        cat > fix_project.py << 'EOF'
+import re
+
+# Read the project file
+with open('Runner.xcodeproj/project.pbxproj', 'r') as f:
+    content = f.read()
+
+# Count occurrences before fix
+before_count = content.count('ProcreateHelperWidget/Info.plist')
+print(f"Found {before_count} references to ProcreateHelperWidget/Info.plist")
+
+# Remove the line that contains ProcreateHelperWidget/Info.plist from Copy Bundle Resources
+# This is typically a line like: 1234567890ABCDEF /* Info.plist */ = {isa = PBXFileReference; ...
+lines = content.split('\n')
+new_lines = []
+removed_lines = 0
+
+for line in lines:
+    # Skip lines that are file references to the widget Info.plist in Copy Bundle Resources
+    if 'ProcreateHelperWidget/Info.plist' in line and ('PBXBuildFile' in line or 'Copy Bundle Resources' in content[max(0, content.find(line)-200):content.find(line)+200]):
+        print(f"Removing: {line.strip()}")
+        removed_lines += 1
+        continue
+    new_lines.append(line)
+
+# Write back the fixed content
+with open('Runner.xcodeproj/project.pbxproj', 'w') as f:
+    f.write('\n'.join(new_lines))
+
+print(f"Removed {removed_lines} problematic references")
+print("Xcode project configuration fixed")
+EOF
+
+        python3 fix_project.py
+        cd ..
+        
     # Install iOS CocoaPods dependencies
     - name: Install iOS Dependencies
       run: |
